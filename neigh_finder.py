@@ -79,99 +79,99 @@ except:
     #print("Connection failed")
     pass
 
-for segment,n_segments in neighbours_dict.items():
-    take_it =list()
-    print("*******************///////*****************")
-    print("seg:",segment,"value",n_segments)
-    for i in n_segments:
-        if type(i)==list:
-            for n in i:
-                take_it.append(n)
-        else:
-            take_it.append(i)
-    print("take_it:",take_it)
 
-    for new_seg in take_it: #RECURSION MUST!!!
-        cur = conn.cursor()
-        cur.execute("""select *
-            from dynamic_data3
-            where segmentid='%s' and travel_time>(select avg(travel_time)*5
-                                        from dynamic_data3
-                                        ) order by time asc""" % (new_seg))
-        rows = cur.fetchall()
+def find_neighbours_if_anormal(avg,min=2,max=5):
+    for segment,n_segments in neighbours_dict.items():
+        take_it =list()
+        print("*******************///////*****************")
+        print("seg:",segment,"value",n_segments)
+        for i in n_segments:
+            if type(i)==list:
+                for n in i:
+                    take_it.append(n)
+            else:
+                take_it.append(i)
+        print("take_it:",take_it)
 
-        # Extract the column names
-        anormal_obstime = []
-        anormal_segments = []
-        anormal_traveltime = []
-        car_count = []
+        for new_seg in take_it: #RECURSION MUST!!!
+            cur = conn.cursor()
+            cur.execute("""select *
+                from dynamic_data3
+                where segmentid='%s' and travel_time>(select avg(travel_time)*%s
+                                            from dynamic_data3
+                                            ) order by time asc""" % (new_seg,avg))
 
-        for row in rows:
-            anormal_obstime.append(row[0])
-            anormal_segments.append(row[1])
-            anormal_traveltime.append(row[2])
-            car_count.append(row[3])
+            rows = cur.fetchall()
 
-        print("segment:", new_seg, "-------------------------------")
-        print(anormal_obstime)
-        # We are currently working on one day, so we reshaped the observation time
-        fmt = '%Y-%m-%d %H:%M:%S'
-        shaped_time = x = [
-            '%s:%s:%s' % (datetime.strptime(i, fmt).strftime("%H"), datetime.strptime(i, fmt).strftime("%M"),
-                          datetime.strptime(i, fmt).strftime("%S")) for i in anormal_obstime]
+            # Extract the column names
+            anormal_obstime = []
+            anormal_segments = []
+            anormal_traveltime = []
+            car_count = []
 
-        dct = dict()
-        for i, j in zip(anormal_segments, shaped_time):
-            dct.setdefault(i, []).append(j)
+            for row in rows:
+                anormal_obstime.append(row[0])
+                anormal_segments.append(row[1])
+                anormal_traveltime.append(row[2])
+                car_count.append(row[3])
 
-        print(dct)
+            print("segment:", new_seg, "-------------------------------")
+            print(anormal_obstime)
+            # We are currently working on one day, so we reshaped the observation time
+            fmt = '%Y-%m-%d %H:%M:%S'
+            shaped_time = x = [
+                '%s:%s:%s' % (datetime.strptime(i, fmt).strftime("%H"), datetime.strptime(i, fmt).strftime("%M"),
+                              datetime.strptime(i, fmt).strftime("%S")) for i in anormal_obstime]
 
-        shaped_timevalues = dict()
-        fmt = '%H:%M:%S'
+            dct = dict()
+            for i, j in zip(anormal_segments, shaped_time):
+                dct.setdefault(i, []).append(j)
 
-        for i, j in dct.items():
-            newlist = list()
-            sequence = [j[0]]  # list with the 'linked times', with the first value already inserted
-            for n in range(1, len(j)):
+            print(dct)
 
-                time1 = datetime.strptime(j[n - 1], fmt)
-                time2 = datetime.strptime(j[n], fmt)
-                minutes = (time2 - time1).total_seconds() / 60  # how many minutes in difference
+            shaped_timevalues = dict()
+            fmt = '%H:%M:%S'
 
-                if minutes >= 2 and minutes <= 5:
-                    sequence.append(j[n])
+            for i, j in dct.items():
+                newlist = list()
+                sequence = [j[0]]  # list with the 'linked times', with the first value already inserted
+                for n in range(1, len(j)):
 
-                else:
+                    time1 = datetime.strptime(j[n - 1], fmt)
+                    time2 = datetime.strptime(j[n], fmt)
+                    minutes = (time2 - time1).total_seconds() / 60  # how many minutes in difference
+
+                    if minutes >= min and minutes <= max:
+                        sequence.append(j[n])
+
+                    else:
+                        newlist.append(sequence)
+                        sequence = [j[n]]
+
+                if len(sequence) > 0:
                     newlist.append(sequence)
-                    sequence = [j[n]]
+                shaped_timevalues[i] = newlist
 
-            if len(sequence) > 0:
-                newlist.append(sequence)
-            shaped_timevalues[i] = newlist
+            # print(shaped_timevalues)
 
-        # print(shaped_timevalues)
+            for key in shaped_timevalues.keys():
+                # print('SEGMENTID',key)
+                # print('LENGTH:',len(shaped_timevalues[key]))
+                c = 0
+                for j in shaped_timevalues[key]:
+                    # print(j)
+                    remake = list()
+                    if len(j) > 2:
+                        remake.append(j[0])
+                        remake.append(j[-1])
+                        if remake not in shaped_timevalues[key]:
+                            shaped_timevalues[key][c] = remake
+                    c += 1
 
-        for key in shaped_timevalues.keys():
-            # print('SEGMENTID',key)
-            # print('LENGTH:',len(shaped_timevalues[key]))
-            c = 0
-            for j in shaped_timevalues[key]:
-                # print(j)
-                remake = list()
-                if len(j) > 2:
-                    remake.append(j[0])
-                    remake.append(j[-1])
-                    if remake not in shaped_timevalues[key]:
-                        shaped_timevalues[key][c] = remake
-                c += 1
-
-        print("shaped:",shaped_timevalues)
-        for n_key2, n_value2 in anormal_dict.items():
-            for n_key3, n_value3 in shaped_timevalues.items():
-                if n_value3 == n_value2:
-                    print("MAİNSEG:",n_key3,"THE RESULT:",n_key3,n_value2)
+            print("shaped:",shaped_timevalues)
+            
 
 
-
+find_neighbours_if_anormal(5)
 
 
