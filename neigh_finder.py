@@ -41,6 +41,8 @@ intersection_dict=csv_fixer()
 #anormal_dict={'645872': [['09:23:00', '09:48:00'], ['14:53:00', '15:18:00'],['16:13:00', '16:38:00'], ['17:08:00', '17:33:00']]}
 neighbours_dict = dict()
 anormal_dict = first_step
+print("NEİGH FİNDER")
+print(anormal_dict)
 c=""
 for key in anormal_dict.keys():
     neighbours_dict[key]=list()
