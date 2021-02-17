@@ -97,8 +97,7 @@ def find_linked_time(avg=2,min=2,max=10):
     return shaped_timevalues #Final dictionary returns if they are linked
 
 
-first_step=(excessive_time_limit(find_linked_time(avg=20),limit=25))
-
+first_step=(excessive_time_limit(find_linked_time(avg=15),limit=10))
 
 
 

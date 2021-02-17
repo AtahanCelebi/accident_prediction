@@ -20,14 +20,14 @@ def excessive_time_limit(reshaped_time,limit):
                     #newlist.append([i,j[n]])
                     newlist.append(j[n])
                     newdct[i] = newlist
-
+    """
     csv_columns = ['SegmentsId', 'ObservationTime']
     with open("AnormalTimeInterval.csv", 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
         writer.writeheader()
         for i, j in newdct.items():
             # print('SEGMENT:',i,'TIMES:',j)
-            csvfile.write('%s,%s\n' % (i, j))
-
+            csvfile.write('%s,%s\n' % (i, j))"""
+    print(limit,"dakika limit değerine göre ayarlanmış dictionary\n",newdct)
     return newdct
 

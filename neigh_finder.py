@@ -6,7 +6,7 @@ from AnormalSegments3 import first_step
 def csv_fixer():
     x = datetime.now().second
     time_dict = dict()
-    with open('segdictAllStatic.csv','r') as read_obj:
+    with open('segdictAllStatic.csv','r') as read_obj:# Thanks to Mete, segment neighbours csv
             csv_reader = reader(read_obj)
             header = next(csv_reader)
             # Check file as empty
@@ -42,7 +42,6 @@ intersection_dict=csv_fixer()
 neighbours_dict = dict()
 anormal_dict = first_step
 print("NEİGH FİNDER")
-print(anormal_dict)
 c=""
 for key in anormal_dict.keys():
     neighbours_dict[key]=list()
@@ -66,7 +65,7 @@ for key in anormal_dict.keys():
                 neighbours.append(c)
                 neighbours_dict[key].append(c)
 
-print(neighbours_dict)
+print("Anormal Segmentlerin Komşuları\n",neighbours_dict)
 
 try:
     conn = psycopg2.connect(database="btr",
@@ -75,10 +74,10 @@ try:
                             host="127.0.0.1",
                             port="5432")
 
-    print("Successfully Connected")
+    #print("Successfully Connected")
 except:
-    print("Connection failed")
-
+    #print("Connection failed")
+    pass
 
 for segment,n_segments in neighbours_dict.items():
     take_it =list()
@@ -92,7 +91,7 @@ for segment,n_segments in neighbours_dict.items():
             take_it.append(i)
     print("take_it:",take_it)
 
-    for new_seg in take_it:
+    for new_seg in take_it: #RECURSION MUST!!!
         cur = conn.cursor()
         cur.execute("""select *
             from dynamic_data3
