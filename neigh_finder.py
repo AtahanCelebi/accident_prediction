@@ -80,7 +80,7 @@ except:
     pass
 
 
-def find_neighbours_if_anormal(avg,min=2,max=5):
+def find_neighbours_if_anormal(avg,min=2,max=5):#5874021 , 5874023, 644068, 5605488, 1575603
     for segment,n_segments in neighbours_dict.items():
         take_it =list()
         print("*******************///////*****************")
@@ -91,7 +91,7 @@ def find_neighbours_if_anormal(avg,min=2,max=5):
                     take_it.append(n)
             else:
                 take_it.append(i)
-        print("take_it:",take_it)
+        #print("take_it:",take_it)
 
         for new_seg in take_it: #RECURSION MUST!!!
             cur = conn.cursor()
@@ -169,8 +169,6 @@ def find_neighbours_if_anormal(avg,min=2,max=5):
                     c += 1
 
             print("shaped:",shaped_timevalues)
-            
-
 
 find_neighbours_if_anormal(5)
 
