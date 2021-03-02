@@ -125,7 +125,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
 
 def sorgu(komsular,avg=5):
     for new_seg in komsular:
-        print("NEW SEG:",new_seg)
+        print("NEW SEG-----",new_seg)
         cur = conn.cursor()
         cur.execute("""select *
                         from dynamic_data3
@@ -147,13 +147,15 @@ def sorgu(komsular,avg=5):
             anormal_traveltime.append(row[2])
             car_count.append(row[3])
         goster(new_seg, anormal_obstime, anormal_segments)
-        print(len(anormal_obstime),"veeeee",segment_check)
+        print("SEGMENT LISTESI:",segment_check)
+        print("uzunluk:",len(anormal_obstime))
 
-        while (len(anormal_obstime)>=3 and new_seg not in segment_check ):
-            if new_seg not in segment_check:
-                segment_check.append(new_seg)
-                komsular2=find_key(new_seg)
-                sorgu(komsular2[new_seg])
+        while (len(anormal_obstime)>=2 and new_seg not in segment_check ):
+            segment_check.append(new_seg)
+            komsular2 = find_key(new_seg)
+            print("%s'in Komşuları:%s" % (new_seg, komsular2))
+            sorgu(komsular2[new_seg])
+
 
 
 
@@ -162,5 +164,5 @@ for i,j in anormal_dict.items():
     if i not in segment_check:
         segment_check.append(i)
         komsular = find_key(i)
-        #print(i,"komşular:",komsular[i],len(komsular[i]))
+        print("--------------------------------------------------",i,"komşular:",komsular[i],len(komsular[i]),"--------------------------------------------------")
         sorgu(komsular[i])
