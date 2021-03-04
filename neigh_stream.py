@@ -68,7 +68,7 @@ except:
 
 def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
     print("segment:", new_seg, "-------------------------------")
-    print(anormal_obstime)
+    #print(anormal_obstime)
     # We are currently working on one day, so we reshaped the observation time
     fmt = '%Y-%m-%d %H:%M:%S'
     shaped_time = x = [
@@ -79,7 +79,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
     for i, j in zip(anormal_segments, shaped_time):
         dct.setdefault(i, []).append(j)
 
-    print(dct)
+    #print(dct)
 
     shaped_timevalues = dict()
     fmt = '%H:%M:%S'
@@ -125,36 +125,37 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
 
 def sorgu(komsular,avg=5):
     for new_seg in komsular:
-        print("NEW SEG-----",new_seg)
-        cur = conn.cursor()
-        cur.execute("""select *
-                        from dynamic_data3
-                        where segmentid='%s' and travel_time>(select avg(travel_time)*%s
-                                                    from dynamic_data3
-                                                    ) order by time asc""" % (new_seg, avg))
+        if new_seg not in segment_check:
+            print("NEW SEG-----",new_seg)
+            cur = conn.cursor()
+            cur.execute("""select *
+                            from dynamic_data3
+                            where segmentid='%s' and travel_time>(select avg(travel_time)*%s
+                                                        from dynamic_data3
+                                                        ) order by time asc""" % (new_seg, avg))
 
-        rows = cur.fetchall()
+            rows = cur.fetchall()
 
-        # Extract the column names
-        anormal_obstime = []
-        anormal_segments = []
-        anormal_traveltime = []
-        car_count = []
+            # Extract the column names
+            anormal_obstime = []
+            anormal_segments = []
+            anormal_traveltime = []
+            car_count = []
 
-        for row in rows:
-            anormal_obstime.append(row[0])
-            anormal_segments.append(row[1])
-            anormal_traveltime.append(row[2])
-            car_count.append(row[3])
-        goster(new_seg, anormal_obstime, anormal_segments)
-        print("SEGMENT LISTESI:",segment_check)
-        print("uzunluk:",len(anormal_obstime))
+            for row in rows:
+                anormal_obstime.append(row[0])
+                anormal_segments.append(row[1])
+                anormal_traveltime.append(row[2])
+                car_count.append(row[3])
+            goster(new_seg, anormal_obstime, anormal_segments)
+            print("uzunluk:",len(anormal_obstime))
 
-        while (len(anormal_obstime)>=2 and new_seg not in segment_check ):
-            segment_check.append(new_seg)
-            komsular2 = find_key(new_seg)
-            print("%s'in Komşuları:%s" % (new_seg, komsular2))
-            sorgu(komsular2[new_seg])
+            while (len(anormal_obstime)>=2 and new_seg not in segment_check ):
+                segment_check.append(new_seg)
+                komsular2 = find_key(new_seg)
+                #print("SEGMENT LISTESI:", segment_check)
+                print("%s'in Komşuları:%s" % (new_seg, komsular2))
+                sorgu(komsular2[new_seg])
 
 
 
