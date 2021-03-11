@@ -1,3 +1,8 @@
+"""
+Created: 11/03/2021
+@author: AtahanCelebi
+"""
+
 from csv import reader
 from datetime import datetime
 import psycopg2
@@ -34,7 +39,7 @@ def csv_fixer():
 intersection_dict=csv_fixer()
 
 def find_key(key):
-    key_neighbours = dict()
+    key_neighbours = dict() #exp:1553031 , 1553026
     c = ""
     key_neighbours[key] = list()
     for i, j in intersection_dict.items():
@@ -47,15 +52,10 @@ def find_key(key):
                 neighbours.append(j[0])
                 key_neighbours[key].append(j[0])
         if key in j and c not in key_neighbours[key]:
-            findex = j.index(key) - 1
-            if findex == -1:
-                neighbours.append(i)
-                key_neighbours[key].append(i)
+            neighbours.append(i)
+            key_neighbours[key].append(i)
 
-            else:
-                c = j[findex]
-                neighbours.append(c)
-                key_neighbours[key].append(c)
+
     return key_neighbours
 
 try:
