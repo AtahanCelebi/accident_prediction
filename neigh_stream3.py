@@ -2,9 +2,13 @@ from csv import reader
 from datetime import datetime
 import psycopg2
 import numpy as np
+from datetime import datetime as dt
 from AnormalSegments3 import first_step
 anormal_dict = first_step
 segment_check= list()
+shaped_timevalues = dict()
+
+
 def csv_fixer():
     x = datetime.now().second
     time_dict = dict()
@@ -66,8 +70,11 @@ except:
     #print("Connection failed")
     pass
 
+
+
+
 def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
-    print("segment:", new_seg, "-------------------------------")
+    #print("segment:", new_seg, "-------------------------------")
     #print(anormal_obstime)
     # We are currently working on one day, so we reshaped the observation time
     fmt = '%Y-%m-%d %H:%M:%S'
@@ -81,7 +88,6 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
 
     #print(dct)
 
-    shaped_timevalues = dict()
     fmt = '%H:%M:%S'
 
     for i, j in dct.items():
@@ -105,28 +111,21 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
         shaped_timevalues[i] = newlist
 
     # print(shaped_timevalues)
-
-    for key in shaped_timevalues.keys():
-        # print('SEGMENTID',key)
-        # print('LENGTH:',len(shaped_timevalues[key]))
+    if shaped_timevalues.get(new_seg) is not None:
         c = 0
-        for j in shaped_timevalues[key]:
-            # print(j)
+        for j in shaped_timevalues[new_seg]:
+                # print(j)
             remake = list()
             if len(j) > 2:
                 remake.append(j[0])
                 remake.append(j[-1])
-                if remake not in shaped_timevalues[key]:
-                    shaped_timevalues[key][c] = remake
+                if remake not in shaped_timevalues[new_seg]:
+                    shaped_timevalues[new_seg][c] = remake
             c += 1
 
-    print("shaped:", shaped_timevalues)
-
-
-def sorgu(komsular,avg=5):
+def sorgu(komsular,key,avg=5):
     for new_seg in komsular:
         if new_seg not in segment_check:
-            print("NEW SEG-----",new_seg)
             cur = conn.cursor()
             cur.execute("""select *
                             from dynamic_data3
@@ -135,7 +134,6 @@ def sorgu(komsular,avg=5):
                                                         ) order by time asc""" % (new_seg, avg))
 
             rows = cur.fetchall()
-
             # Extract the column names
             anormal_obstime = []
             anormal_segments = []
@@ -148,19 +146,39 @@ def sorgu(komsular,avg=5):
                 anormal_traveltime.append(row[2])
                 car_count.append(row[3])
             goster(new_seg, anormal_obstime, anormal_segments)
-            print("uzunluk:",len(anormal_obstime))
+            if shaped_timevalues.get(new_seg) is  None:
+                print("NEW SEG-----x", new_seg)
+            else:
+
+                print("NEW SEG-----", new_seg)
+                print("shaped:", new_seg,":",shaped_timevalues[new_seg])
+                try:
+                    get = time_match(anormal_dict[key], shaped_timevalues[new_seg])
+
+                    while get and new_seg not in segment_check:
+                        segment_check.append(new_seg)
+                        komsular2 = find_key(new_seg)
+                        # print("SEGMENT LISTESI:", segment_check)
+                        print("%s'in Komşuları:%s" % (new_seg, komsular2))
+                        sorgu(komsular2[new_seg], new_seg)
+                except KeyError:
+                    print("ERRRORRRRR:!!!",new_seg)
 
 
+def time_match(main,neigh):
+    print("************************main:::",main)
+    print("************************neigh:::",neigh,len(neigh))
 
-
-
-
-            while (len(anormal_obstime)>=2 and new_seg not in segment_check ):
-                segment_check.append(new_seg)
-                komsular2 = find_key(new_seg)
-                #print("SEGMENT LISTESI:", segment_check)
-                print("%s'in Komşuları:%s" % (new_seg, komsular2))
-                sorgu(komsular2[new_seg])
+    for i in range(len(neigh)):
+        for j in range(len(main)):
+            for x in neigh[i]:
+                for y in main:
+                    start = y[0]
+                    end = y[1]
+                    if dt.strptime(start, "%H:%M:%S") <= dt.strptime(x, "%H:%M:%S") <= dt.strptime(end, "%H:%M:%S"):
+                        print("*****EŞLEŞTİ","x:",x,"y:",main[j])
+                        return True
+    return False
 
 
 
@@ -171,4 +189,4 @@ for i,j in anormal_dict.items():
         segment_check.append(i)
         komsular = find_key(i)
         print("--------------------------------------------------",i,"komşular:",komsular[i],len(komsular[i]),"--------------------------------------------------")
-        sorgu(komsular[i])
+        sorgu(komsular[i],i)
