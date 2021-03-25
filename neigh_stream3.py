@@ -1,5 +1,5 @@
 """
-Created: 11/03/2021
+Created: 25/03/2021
 @author: AtahanCelebi
 """
 
@@ -13,11 +13,10 @@ anormal_dict = first_step
 segment_check= list()
 shaped_timevalues = dict()
 
-
 def csv_fixer():
     x = datetime.now().second
     time_dict = dict()
-    with open('segdictAllStatic.csv','r') as read_obj:# Thanks to Mete, segment neighbours csv
+    with open('D:/issd_veriler/istanbul_veri/fcd_staticData/adjacency_matrices/42_fcdAllStaticData_adj.csv','r') as read_obj:# Thanks to Mete, segment neighbours csv
             csv_reader = reader(read_obj)
             header = next(csv_reader)
             # Check file as empty
@@ -34,7 +33,6 @@ def csv_fixer():
     #for i,j in time_dict.items():
         #print("segmetns:",i,"values:",j)
     return time_dict
-
 
 intersection_dict=csv_fixer()
 
@@ -69,9 +67,6 @@ try:
 except:
     #print("Connection failed")
     pass
-
-
-
 
 def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
     #print("segment:", new_seg, "-------------------------------")
@@ -128,7 +123,7 @@ def sorgu(komsular,key,avg=5):
         if new_seg not in segment_check:
             cur = conn.cursor()
             cur.execute("""select *
-                            from dynamic_data3
+                            from konya_veri
                             where segmentid='%s' and travel_time>(select avg(travel_time)*%s
                                                         from dynamic_data3
                                                         ) order by time asc""" % (new_seg, avg))
@@ -179,10 +174,6 @@ def time_match(main,neigh):
                         print("*****EŞLEŞTİ","x:",x,"y:",main[j])
                         return True
     return False
-
-
-
-
 
 for i,j in anormal_dict.items():
     if i not in segment_check:

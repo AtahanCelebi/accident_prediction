@@ -1,5 +1,5 @@
 """
-Created: 11/03/2021
+Created: 25/03/2021
 @author: AtahanCelebi
 """
 import psycopg2
@@ -21,7 +21,7 @@ def find_linked_time(avg=2,min=2,max=10):
     cur = conn.cursor()
     ###This query finds anormal-segments which are x10 times higher than the average
     cur.execute(""" select c1.segmentid, c1.time,c1.travel_time
-    from combination_table c1
+    from konya_veri c1
     where c1.travel_time > (select avg(c2.travel_time)*%s
                             from combination_table c2)
                             order by c1.time asc"""%(avg))
