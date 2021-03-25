@@ -166,8 +166,8 @@ def time_match(main,neigh):
         for j in range(len(main)):
             for x in neigh[i]:
                 for y in main:
-                    start = main[j][0]
-                    end = main[j][1]
+                    start = y[0]
+                    end = y[1]
                     if dt.strptime(start, "%H:%M:%S") <= dt.strptime(x, "%H:%M:%S") <= dt.strptime(end, "%H:%M:%S"):
                         print("*****EŞLEŞTİ","x:",x,"y:",main[j])
                         return True
