@@ -118,7 +118,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
                     shaped_timevalues[new_seg][c] = remake
             c += 1
 
-def sorgu(komsular,key,avg=5):
+def sorgu(komsular,key,avg=3):
     for new_seg in komsular:
         if new_seg not in segment_check:
             cur = conn.cursor()
@@ -144,20 +144,18 @@ def sorgu(komsular,key,avg=5):
             if shaped_timevalues.get(new_seg) is  None:
                 print("NEW SEG-----x", new_seg)
             else:
-
                 print("NEW SEG-----", new_seg)
                 print("shaped:", new_seg,":",shaped_timevalues[new_seg])
-                try:
-                    get = time_match(anormal_dict[key], shaped_timevalues[new_seg])
+                get = time_match(anormal_dict[key], shaped_timevalues[new_seg])
 
-                    while get and new_seg not in segment_check:
-                        segment_check.append(new_seg)
-                        komsular2 = find_key(new_seg)
-                        # print("SEGMENT LISTESI:", segment_check)
-                        print("%s'in Komşuları:%s" % (new_seg, komsular2))
-                        sorgu(komsular2[new_seg], new_seg)
-                except KeyError:
-                    print("ERRRORRRRR:!!!",new_seg)
+                while get and new_seg not in segment_check:
+                    segment_check.append(new_seg)
+                    komsular2 = find_key(new_seg)
+                    # print("SEGMENT LISTESI:", segment_check)
+                    print("%s'in Komşuları:%s" % (new_seg, komsular2))
+                    sorgu(komsular2[new_seg], key)
+
+
 
 
 def time_match(main,neigh):
@@ -168,8 +166,8 @@ def time_match(main,neigh):
         for j in range(len(main)):
             for x in neigh[i]:
                 for y in main:
-                    start = y[0]
-                    end = y[1]
+                    start = main[j][0]
+                    end = main[j][1]
                     if dt.strptime(start, "%H:%M:%S") <= dt.strptime(x, "%H:%M:%S") <= dt.strptime(end, "%H:%M:%S"):
                         print("*****EŞLEŞTİ","x:",x,"y:",main[j])
                         return True
