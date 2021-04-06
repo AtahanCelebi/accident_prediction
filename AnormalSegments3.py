@@ -1,5 +1,5 @@
 """
-Created: 25/03/2021
+Created: 06/04/2021
 @author: AtahanCelebi
 """
 import psycopg2
@@ -97,7 +97,7 @@ def find_linked_time(avg=2,min=2,max=10):
     return shaped_timevalues #Final dictionary returns if they are linked
 
 
-first_step=(excessive_time_limit(find_linked_time(avg=10),limit=10))
+first_step=(excessive_time_limit(find_linked_time(avg=5),limit=10))
 
 
 

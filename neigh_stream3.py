@@ -1,5 +1,5 @@
 """
-Created: 25/03/2021
+Created: 06/04/2021
 @author: AtahanCelebi
 """
 
@@ -118,7 +118,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
                     shaped_timevalues[new_seg][c] = remake
             c += 1
 
-def sorgu(komsular,key,avg=3):
+def sorgu(komsular,key,avg=5):
     for new_seg in komsular:
         if new_seg not in segment_check:
             cur = conn.cursor()
@@ -169,7 +169,7 @@ def time_match(main,neigh):
                     start = y[0]
                     end = y[1]
                     if dt.strptime(start, "%H:%M:%S") <= dt.strptime(x, "%H:%M:%S") <= dt.strptime(end, "%H:%M:%S"):
-                        print("*****EŞLEŞTİ","x:",x,"y:",main[j])
+                        print("*****EŞLEŞTİ","x:",x,"y:",y)
                         return True
     return False
 
