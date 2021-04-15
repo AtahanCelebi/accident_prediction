@@ -1,5 +1,5 @@
 """
-Created: 06/04/2021
+Created: 10/04/2021
 @author: AtahanCelebi
 """
 import psycopg2
@@ -12,7 +12,7 @@ def find_linked_time(avg=2,min=2,max=10):
                                 user="postgres",
                                 password="de7a7838",
                                 host="127.0.0.1",
-                                port="5432")
+                                port="5434")
 
         #print("Successfully Connected")
     except:
@@ -21,9 +21,9 @@ def find_linked_time(avg=2,min=2,max=10):
     cur = conn.cursor()
     ###This query finds anormal-segments which are x10 times higher than the average
     cur.execute(""" select c1.segmentid, c1.time,c1.travel_time
-    from konya_veri c1
+    from istanbul_veri c1
     where c1.travel_time > (select avg(c2.travel_time)*%s
-                            from combination_table c2)
+                            from istanbul_veri c2)
                             order by c1.time asc"""%(avg))
     rows = cur.fetchall()
 
@@ -37,8 +37,8 @@ def find_linked_time(avg=2,min=2,max=10):
     print(avg,"kat yüksek averaj olan dictionary:\n",anormal_time)
     # We are currently working on one day, so we reshaped the observation time
     fmt = '%Y-%m-%d %H:%M:%S'
-    shaped_time = x = ['%s:%s:%s' % (datetime.strptime(i, fmt).strftime("%H"), datetime.strptime(i, fmt).strftime("%M"),
-                                     datetime.strptime(i, fmt).strftime("%S")) for i in anormal_time]
+    shaped_time = x = ['%s:%s:%s' % (datetime.strptime(str(i), fmt).strftime("%H"), datetime.strptime(str(i), fmt).strftime("%M"),
+                                     datetime.strptime(str(i), fmt).strftime("%S")) for i in anormal_time]
 
     dct = dict() #id and time variable are zipped
     for i, j in zip(anormal_segments, shaped_time):
@@ -97,7 +97,7 @@ def find_linked_time(avg=2,min=2,max=10):
     return shaped_timevalues #Final dictionary returns if they are linked
 
 
-first_step=(excessive_time_limit(find_linked_time(avg=5),limit=10))
+first_step=(excessive_time_limit(find_linked_time(avg=15),limit=10))
 
 
 

@@ -1,5 +1,5 @@
 """
-Created: 06/04/2021
+Created: 10/04/2021
 @author: AtahanCelebi
 """
 
@@ -16,7 +16,7 @@ shaped_timevalues = dict()
 def csv_fixer():
     x = datetime.now().second
     time_dict = dict()
-    with open('D:/issd_veriler/istanbul_veri/fcd_staticData/adjacency_matrices/42_fcdAllStaticData_adj.csv','r') as read_obj:# Thanks to Mete, segment neighbours csv
+    with open("C:\\Users\\Ata\\Desktop\\istanbul_neigh.csv",'r') as read_obj:# Thanks to Mete, segment neighbours csv
             csv_reader = reader(read_obj)
             header = next(csv_reader)
             # Check file as empty
@@ -61,7 +61,7 @@ try:
                             user="postgres",
                             password="de7a7838",
                             host="127.0.0.1",
-                            port="5432")
+                            port="5434")
 
     #print("Successfully Connected")
 except:
@@ -123,9 +123,9 @@ def sorgu(komsular,key,avg=5):
         if new_seg not in segment_check:
             cur = conn.cursor()
             cur.execute("""select *
-                            from konya_veri
+                            from istanbul_veri
                             where segmentid='%s' and travel_time>(select avg(travel_time)*%s
-                                                        from dynamic_data3
+                                                        from istanbul_veri
                                                         ) order by time asc""" % (new_seg, avg))
 
             rows = cur.fetchall()
@@ -136,7 +136,7 @@ def sorgu(komsular,key,avg=5):
             car_count = []
 
             for row in rows:
-                anormal_obstime.append(row[0])
+                anormal_obstime.append(str(row[0]))
                 anormal_segments.append(row[1])
                 anormal_traveltime.append(row[2])
                 car_count.append(row[3])
