@@ -1,5 +1,5 @@
 """
-Created: 10/04/2021
+Created: 27/04/2021
 @author: AtahanCelebi
 """
 
@@ -12,11 +12,13 @@ from AnormalSegments3 import first_step
 anormal_dict = first_step
 segment_check= list()
 shaped_timevalues = dict()
+import twit_premium
+startt = datetime.now()
 
 def csv_fixer():
     x = datetime.now().second
     time_dict = dict()
-    with open("C:\\Users\\Ata\\Desktop\\istanbul_neigh.csv",'r') as read_obj:# Thanks to Mete, segment neighbours csv
+    with open("C:\\Users\\HU-ISSD\\Desktop\\Atahan\\istanbul_veri\\fcd_staticData\\adjacency_matrices\\34_fcdAllStaticData_adj.csv",'r') as read_obj:# Thanks to Mete, segment neighbours csv
             csv_reader = reader(read_obj)
             header = next(csv_reader)
             # Check file as empty
@@ -57,11 +59,11 @@ def find_key(key):
     return key_neighbours
 
 try:
-    conn = psycopg2.connect(database="btr",
+    conn = psycopg2.connect(database="issd",
                             user="postgres",
-                            password="de7a7838",
+                            password="issd",
                             host="127.0.0.1",
-                            port="5434")
+                            port="5432")
 
     #print("Successfully Connected")
 except:
@@ -73,9 +75,11 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
     #print(anormal_obstime)
     # We are currently working on one day, so we reshaped the observation time
     fmt = '%Y-%m-%d %H:%M:%S'
-    shaped_time = x = [
-        '%s:%s:%s' % (datetime.strptime(i, fmt).strftime("%H"), datetime.strptime(i, fmt).strftime("%M"),
-                      datetime.strptime(i, fmt).strftime("%S")) for i in anormal_obstime]
+    shaped_time = x = ['%s-%s-%s %s:%s:%s' % (
+    datetime.strptime(str(i), fmt).strftime("%Y"), datetime.strptime(str(i), fmt).strftime("%m"),
+    datetime.strptime(str(i), fmt).strftime("%d"), datetime.strptime(str(i), fmt).strftime("%H"),
+    datetime.strptime(str(i), fmt).strftime("%M"),
+    datetime.strptime(str(i), fmt).strftime("%S")) for i in anormal_obstime]
 
     dct = dict()
     for i, j in zip(anormal_segments, shaped_time):
@@ -83,7 +87,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
 
     #print(dct)
 
-    fmt = '%H:%M:%S'
+    fmt = '%Y-%m-%d %H:%M:%S'
 
     for i, j in dct.items():
         newlist = list()
@@ -118,7 +122,7 @@ def goster(new_seg,anormal_obstime,anormal_segments,min=2,max=5):
                     shaped_timevalues[new_seg][c] = remake
             c += 1
 
-def sorgu(komsular,key,avg=5):
+def sorgu(komsular,key,avg=10):
     for new_seg in komsular:
         if new_seg not in segment_check:
             cur = conn.cursor()
@@ -157,10 +161,11 @@ def sorgu(komsular,key,avg=5):
 
 
 
-
+fmt ="%H:%M:%S"
+fmt2 ="%Y-%m-%d %H:%M:%S"
 def time_match(main,neigh):
     print("************************main:::",main)
-    print("************************neigh:::",neigh,len(neigh))
+    print("************************neigh:::",neigh)
 
     for i in range(len(neigh)):
         for j in range(len(main)):
@@ -168,9 +173,11 @@ def time_match(main,neigh):
                 for y in main:
                     start = y[0]
                     end = y[1]
-                    if dt.strptime(start, "%H:%M:%S") <= dt.strptime(x, "%H:%M:%S") <= dt.strptime(end, "%H:%M:%S"):
-                        print("*****EŞLEŞTİ","x:",x,"y:",y)
-                        return True
+                    if dt.strptime(start, fmt2) <= dt.strptime(x, fmt2) <= dt.strptime(end, fmt2):
+                        for time in twit_premium.shaped_time_tweets:
+                            if dt.strptime(start, fmt2) <= dt.strptime(str(time), fmt2) <= dt.strptime(end, fmt2):
+                                print("*****EŞLEŞTİ","x:",x,"y:",y,time)
+                                return True
     return False
 
 for i,j in anormal_dict.items():
@@ -179,3 +186,6 @@ for i,j in anormal_dict.items():
         komsular = find_key(i)
         print("--------------------------------------------------",i,"komşular:",komsular[i],len(komsular[i]),"--------------------------------------------------")
         sorgu(komsular[i],i)
+
+endt = datetime.now()
+print(endt-startt)

@@ -3,7 +3,7 @@ import csv
 def excessive_time_limit(reshaped_time,limit):
     #This function finds the excessive time SegmentID
     #and their time interval
-    fmt = '%H:%M:%S'
+    fmt = '%Y-%m-%d %H:%M:%S'
     newdct = dict()
     for i, j in reshaped_time.items():
         newlist = list()
