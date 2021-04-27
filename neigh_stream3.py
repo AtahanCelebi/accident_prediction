@@ -126,10 +126,10 @@ def sorgu(komsular,key,avg=10):
     for new_seg in komsular:
         if new_seg not in segment_check:
             cur = conn.cursor()
-            cur.execute("""select *
-                            from istanbul_veri
-                            where segmentid='%s' and travel_time>(select avg(travel_time)*%s
-                                                        from istanbul_veri
+            cur.execute("""select c1.time, c1.segmentid, c1.travel_time
+                            from istanbul_veri4 c1
+                            where c1.segmentid=%s and c1.travel_time>(select avg(c2.travel_time)*%s
+                                                        from istanbul_veri4 c2
                                                         ) order by time asc""" % (new_seg, avg))
 
             rows = cur.fetchall()
@@ -141,9 +141,8 @@ def sorgu(komsular,key,avg=10):
 
             for row in rows:
                 anormal_obstime.append(str(row[0]))
-                anormal_segments.append(row[1])
+                anormal_segments.append(str(row[1]))
                 anormal_traveltime.append(row[2])
-                car_count.append(row[3])
             goster(new_seg, anormal_obstime, anormal_segments)
             if shaped_timevalues.get(new_seg) is  None:
                 print("NEW SEG-----x", new_seg)

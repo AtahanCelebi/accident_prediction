@@ -20,9 +20,9 @@ def find_linked_time(avg=2,min=2,max=10):
     cur = conn.cursor()
     ###This query finds anormal-segments which are x10 times higher than the average
     cur.execute(""" select c1.segmentid, c1.time,c1.travel_time
-    from istanbul_veri c1
-    where c1.travel_time > (select avg(c2.travel_time)*%s
-                            from istanbul_veri c2)
+    from istanbul_veri4 c1
+    where c1."roadClass"=1 and c1.travel_time > (select avg(c2.travel_time)*%s
+                            from istanbul_veri4 c2)
                             order by c1.time asc"""%(avg))
     rows = cur.fetchall()
 
@@ -42,7 +42,7 @@ def find_linked_time(avg=2,min=2,max=10):
 
     dct = dict() #id and time variable are zipped
     for i, j in zip(anormal_segments, shaped_time):
-        dct.setdefault(i, []).append(j)
+        dct.setdefault(str(i), []).append(str(j))
     print(dct)
     #print("id ve segment olarak düzenlenmiş hali\n",dct)
 
