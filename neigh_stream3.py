@@ -126,9 +126,9 @@ def sorgu(komsular,key,avg=10):
     for new_seg in komsular:
         if new_seg not in segment_check:
             cur = conn.cursor()
-            cur.execute("""select c1.time, c1.segmentid, c1.travel_time
+            cur.execute("""select c1.time, c1.segmentid, c1.travel_time, c1.carnum, c1.road_class
                             from istanbul_veri4 c1
-                            where c1.segmentid=%s and c1.travel_time>(select avg(c2.travel_time)*%s
+                            where road_class in (1,2) and c1.carnum>=5 and c1.segmentid=%s and c1.travel_time>(select avg(c2.travel_time)*%s
                                                         from istanbul_veri4 c2
                                                         ) order by time asc""" % (new_seg, avg))
 

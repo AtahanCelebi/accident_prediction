@@ -19,9 +19,9 @@ def find_linked_time(avg=2,min=2,max=10):
 
     cur = conn.cursor()
     ###This query finds anormal-segments which are x10 times higher than the average
-    cur.execute(""" select c1.segmentid, c1.time,c1.travel_time
+    cur.execute(""" select c1.segmentid, c1.time,c1.travel_time, c1.carnum, c1.road_class
     from istanbul_veri4 c1
-    where c1."roadClass"=1 and c1.travel_time > (select avg(c2.travel_time)*%s
+    where c1.carnum>=5 and c1.road_class in (1,2) and c1.travel_time > (select avg(c2.travel_time)*%s
                             from istanbul_veri4 c2)
                             order by c1.time asc"""%(avg))
     rows = cur.fetchall()
