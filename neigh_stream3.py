@@ -2,7 +2,7 @@
 Created: 27/04/2021
 @author: AtahanCelebi
 """
-
+import csv
 from csv import reader
 from datetime import datetime
 import psycopg2
@@ -149,7 +149,7 @@ def sorgu(komsular,key,avg=10):
             else:
                 print("NEW SEG-----", new_seg)
                 print("shaped:", new_seg,":",shaped_timevalues[new_seg])
-                get = time_match(anormal_dict[key], shaped_timevalues[new_seg])
+                get = time_match(anormal_dict[key], shaped_timevalues[new_seg],new_seg)
 
                 while get and new_seg not in segment_check:
                     segment_check.append(new_seg)
@@ -162,7 +162,7 @@ def sorgu(komsular,key,avg=10):
 
 fmt ="%H:%M:%S"
 fmt2 ="%Y-%m-%d %H:%M:%S"
-def time_match(main,neigh):
+def time_match(main,neigh,segment):
     print("************************main:::",main)
     print("************************neigh:::",neigh)
 
@@ -176,15 +176,19 @@ def time_match(main,neigh):
                         for time in twit_premium.shaped_time_tweets:
                             if dt.strptime(start, fmt2) <= dt.strptime(str(time), fmt2) <= dt.strptime(end, fmt2):
                                 print("*****EŞLEŞTİ","x:",x,"y:",y,time)
+                                csvfile.write('%s,%s,%s,%s\n' % (segment,y,time,x))
                                 return True
     return False
+csv_columns = ['SegmentsId', 'ObservationTime','AccidentTimeTwitter','AccidentTimeISSD']
+with open("twitter_accident_match.csv", 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+    writer.writeheader()
+    for i,j in anormal_dict.items():
+        if i not in segment_check:
+            segment_check.append(i)
+            komsular = find_key(i)
+            print("--------------------------------------------------",i,"komşular:",komsular[i],len(komsular[i]),"--------------------------------------------------")
+            sorgu(komsular[i],i)
 
-for i,j in anormal_dict.items():
-    if i not in segment_check:
-        segment_check.append(i)
-        komsular = find_key(i)
-        print("--------------------------------------------------",i,"komşular:",komsular[i],len(komsular[i]),"--------------------------------------------------")
-        sorgu(komsular[i],i)
-
-endt = datetime.now()
-print(endt-startt)
+    endt = datetime.now()
+    print(endt-startt)
