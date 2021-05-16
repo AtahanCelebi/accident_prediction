@@ -1,8 +1,9 @@
 """
-Created: 27/04/2021
+Created: 16/05/2021
 @author: AtahanCelebi
 """
 import csv
+import unicodedata
 from csv import reader
 from datetime import datetime
 import psycopg2
@@ -173,13 +174,13 @@ def time_match(main,neigh,segment):
                     start = y[0]
                     end = y[1]
                     if dt.strptime(start, fmt2) <= dt.strptime(x, fmt2) <= dt.strptime(end, fmt2):
-                        for time in twit_premium.shaped_time_tweets:
-                            if dt.strptime(start, fmt2) <= dt.strptime(str(time), fmt2) <= dt.strptime(end, fmt2):
-                                print("*****EŞLEŞTİ","x:",x,"y:",y,time)
-                                csvfile.write('%s,%s,%s,%s\n' % (segment,y,time,x))
+                        for time in twit_premium.sonuc:
+                            if dt.strptime(start, fmt2) <= dt.strptime(str(time[0]), fmt2) <= dt.strptime(end, fmt2):
+                                print("*****EŞLEŞTİ","x:",x,"y:",y,str(time[0]))
+                                csvfile.write('%s,%s,%s,%s,%s\n' % (segment,y,str(time[0]),x,unicodedata.normalize('NFKD', time[1]).encode('ascii', 'ignore')))
                                 return True
     return False
-csv_columns = ['SegmentsId', 'ObservationTime','AccidentTimeTwitter','AccidentTimeISSD']
+csv_columns = ['SegmentsId', 'ObservationTime','AccidentTimeTwitter','AccidentTimeISSD','AccidentLocation']
 with open("twitter_accident_match.csv", 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
     writer.writeheader()
